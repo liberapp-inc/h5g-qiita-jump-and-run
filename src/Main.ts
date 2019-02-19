@@ -48,13 +48,6 @@ class Main extends eui.UILayer {
         })
     }
 
-    private enterFrame(t:number):boolean {
-        this.cameraX += 1;
-        this.eraseBlocksOutOfCamera();
-        this.generateNewBlocks();
-        this.updateCamera();
-        return true;
-    }
 
     private world : egret.DisplayObjectContainer;
     private cameraX: number;
@@ -73,6 +66,14 @@ class Main extends eui.UILayer {
         this.updateCamera();
     }
 
+    private enterFrame(t:number):boolean {
+        this.cameraX += 1;
+        this.generateNewBlocks();        
+        this.updateCamera();
+        this.eraseBlocksOutOfCamera();
+        return true;
+    }
+    
     private eraseBlocksOutOfCamera() {
         const visibilityLeft = this.cameraX - this.width / 2;
         this.platforms = this.platforms.filter((p) => {
@@ -95,7 +96,7 @@ class Main extends eui.UILayer {
             
             const c = this.colors[this.generationIndex];
             p.graphics.beginFill(c);
-            p.graphics.drawRect(PLATFORM_BLOCK_WIDTH, 0, PLATFORM_BLOCK_WIDTH,PLATFORM_BLOCK_WIDTH);
+            p.graphics.drawRect(0, 0, PLATFORM_BLOCK_WIDTH,PLATFORM_BLOCK_WIDTH);
             p.graphics.endFill();
             this.world.addChild(p);
             this.platforms.push(p);
