@@ -50,6 +50,8 @@ class Main extends eui.UILayer {
 
     private enterFrame(t:number):boolean {
         this.cameraX += 1;
+        this.eraseBlocksOutOfCamera();
+        this.generateNewBlocks();
         this.updateCamera();
         return true;
     }
@@ -102,9 +104,6 @@ class Main extends eui.UILayer {
     }
 
     private updateCamera(): void {
-        this.eraseBlocksOutOfCamera();
-        this.generateNewBlocks();
-
         this.world.x = this.width / 2 - this.cameraX;
         this.world.y = this.height / 2;
     }
