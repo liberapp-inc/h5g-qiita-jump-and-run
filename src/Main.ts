@@ -1,3 +1,5 @@
+const PLATFORM_BLOCK_WIDTH = 32;
+
 class Main extends eui.UILayer {
 
 
@@ -5,7 +7,6 @@ class Main extends eui.UILayer {
         super.createChildren();
 
         egret.lifecycle.addLifecycleListener((context) => {
-            // custom lifecycle plugin
         })
 
         egret.lifecycle.onPause = () => {
@@ -29,21 +30,13 @@ class Main extends eui.UILayer {
     private async runGame() {
         await this.loadResource()
         this.createGameScene();
-        // this.startAnimation(result);
+        this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrame, this);
     }
 
     private async loadResource() {
-        try {
-            const loadingView = new LoadingUI();
-            this.stage.addChild(loadingView);
-            await RES.loadConfig("resource/default.res.json", "resource/");
-            await this.loadTheme();
-            await RES.loadGroup("preload", 0, loadingView);
-            this.stage.removeChild(loadingView);
-        }
-        catch (e) {
-            console.error(e);
-        }
+        const loadingView = new LoadingUI();
+        this.stage.addChild(loadingView);
+        this.stage.removeChild(loadingView);
     }
 
     private loadTheme() {
@@ -55,12 +48,64 @@ class Main extends eui.UILayer {
         })
     }
 
+    private enterFrame(t:number):boolean {
+        this.cameraX += 1;
+        this.updateCamera();
+        return true;
+    }
+
+    private world : egret.DisplayObjectContainer;
+    private cameraX: number;
+    private colors: Array<number> = [0xbbbbbb,0x660000];
+    private generationIndex: number = 0;
+    private lastDrawnX: number;
+    private platforms: Array<egret.Shape> = [];
+
+
     protected createGameScene(): void {
-        const text = new egret.TextField();
-        text.textColor = 0xff0000;
-        text.text = "Hello!";
-        text.x = (this.width - text.width) / 2;
-        text.y = (this.height - text.height) / 2;
-        this.addChild(text);
+        this.world = new egret.DisplayObjectContainer();
+        this.addChild(this.world);
+
+        this.lastDrawnX  = - this.width / 2;  
+        this.cameraX = 0; 
+        this.updateCamera();
+    }
+
+    private eraseBlocksOutOfCamera() {
+        const visibilityLeft = this.cameraX - this.width / 2;
+        this.platforms = this.platforms.filter((p) => {
+            const r = p.x + p.width;
+            const inCamera = visibilityLeft <= r;
+            if (!inCamera) {
+                this.world.removeChild(p);
+            }
+            return inCamera;
+        });
+    }
+
+    private generateNewBlocks() {
+        const generationBorder = this.cameraX + this.width;
+        while(this.lastDrawnX  < generationBorder) {
+            const p = new egret.Shape();
+            p.x = this.lastDrawnX;
+            p.y = 0;
+            this.lastDrawnX += PLATFORM_BLOCK_WIDTH;
+            
+            const c = this.colors[this.generationIndex];
+            p.graphics.beginFill(c);
+            p.graphics.drawRect(PLATFORM_BLOCK_WIDTH, 0, PLATFORM_BLOCK_WIDTH,PLATFORM_BLOCK_WIDTH);
+            p.graphics.endFill();
+            this.world.addChild(p);
+            this.platforms.push(p);
+            this.generationIndex = (this.generationIndex + 1) % 2;
+        }
+    }
+
+    private updateCamera(): void {
+        this.eraseBlocksOutOfCamera();
+        this.generateNewBlocks();
+
+        this.world.x = this.width / 2 - this.cameraX;
+        this.world.y = this.height / 2;
     }
 }
