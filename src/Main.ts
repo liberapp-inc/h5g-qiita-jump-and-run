@@ -31,6 +31,7 @@ class Main extends eui.UILayer {
         await this.loadResource()
         this.createGameScene();
         this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrame, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.tap, this);
     }
 
     private async loadResource() {
@@ -55,25 +56,63 @@ class Main extends eui.UILayer {
     private generationIndex: number = 0;
     private lastDrawnX: number;
     private platforms: Array<egret.Shape> = [];
+    private ball: egret.Shape;
+    private tapped: boolean;
+    private ballVx : number = 1;
+    private ballVy : number = 0;
 
 
     protected createGameScene(): void {
         this.world = new egret.DisplayObjectContainer();
         this.addChild(this.world);
 
-        this.lastDrawnX  = - this.width / 2;  
-        this.cameraX = 0; 
-        this.updateCamera();
+        this.cameraX = - this.width; 
+        this.lastDrawnX  = this.cameraX  - this.width / 2;  
+
+        this.createBall();
     }
 
     private enterFrame(t:number):boolean {
-        this.cameraX += 1;
-        this.generateNewBlocks();        
+        this.updateBlocks();  
+        this.updateBall();
         this.updateCamera();
-        this.eraseBlocksOutOfCamera();
         return true;
     }
-    
+
+    private createBall() {
+        this.ball = new egret.Shape();
+        this.ball.x = 0;
+        this.ball.y = 0;
+        {
+            const g = this.ball.graphics;
+            g.beginFill(0xcccc00);
+            g.drawCircle(0, -16, 16);
+            g.endFill();
+        }
+        this.world.addChild(this.ball);
+    }
+
+    private updateBlocks() {
+        this.eraseBlocksOutOfCamera();
+        this.generateNewBlocks();  
+    }
+
+    private updateBall() {
+        if (this.tapped) {
+            this.ballVy -= 3;
+            this.tapped = false;
+        }        
+        if (this.ball.y < 0) {
+            this.ballVy += 0.1;
+        }        
+        this.ball.x += this.ballVx;
+        this.ball.y += this.ballVy;
+        if (0 <= this.ball.y) {
+            this.ballVy = 0;
+            this.ball.y = 0;
+        }
+    }
+
     private eraseBlocksOutOfCamera() {
         const visibilityLeft = this.cameraX - this.width / 2;
         this.platforms = this.platforms.filter((p) => {
@@ -105,7 +144,13 @@ class Main extends eui.UILayer {
     }
 
     private updateCamera(): void {
+        const toMove = this.ball.x - this.cameraX;
+        this.cameraX += Math.min(10,toMove / 60);
         this.world.x = this.width / 2 - this.cameraX;
         this.world.y = this.height / 2;
+    }
+
+    private tap(e: egret.TouchEvent) {
+        this.tapped = true;
     }
 }
