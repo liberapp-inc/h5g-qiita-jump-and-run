@@ -60,7 +60,7 @@ class Main extends eui.UILayer {
     private tapped: boolean;
     private ballVx : number = 1;
     private ballVy : number = 0;
-
+    private jumpCount : number = 0;
 
     protected createGameScene(): void {
         this.world = new egret.DisplayObjectContainer();
@@ -73,6 +73,7 @@ class Main extends eui.UILayer {
     }
 
     private enterFrame(t:number):boolean {
+
         this.updateBlocks();  
         this.updateBall();
         this.updateCamera();
@@ -97,20 +98,36 @@ class Main extends eui.UILayer {
         this.generateNewBlocks();  
     }
 
-    private updateBall() {
-        if (this.tapped) {
-            this.ballVy -= 3;
-            this.tapped = false;
-        }        
-        if (this.ball.y < 0) {
-            this.ballVy += 0.1;
-        }        
+    private updateBall() {        
         this.ball.x += this.ballVx;
         this.ball.y += this.ballVy;
-        if (0 <= this.ball.y) {
-            this.ballVy = 0;
-            this.ball.y = 0;
+
+        let isBallOnBlock: boolean;
+        const ballRect = this.ball.getTransformedBounds(this.world);
+        const bottom = this.ball.y;
+        const blockRect= new egret.Rectangle();
+        this.platforms.forEach(e => {
+            e.getTransformedBounds(this.world,blockRect);
+            if (blockRect.intersects(ballRect)) {
+                const blockCenterY = (blockRect.top + blockRect.bottom) / 2;
+                if (bottom <= blockCenterY) {
+                    isBallOnBlock = true;
+                    this.ball.y = blockRect.top;
+                    this.ballVy = 0;
+                }
+            }
+        });
+
+        if (isBallOnBlock) {
+            this.jumpCount = 0;
+        } else {
+            this.ballVy += 0.1;
         }
+        if ((isBallOnBlock || this.jumpCount < 2) && this.tapped) {
+            this.ballVy -= 5;
+            this.jumpCount ++;
+        }  
+        this.tapped = false;
     }
 
     private eraseBlocksOutOfCamera() {
