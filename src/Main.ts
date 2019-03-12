@@ -212,11 +212,7 @@ class Main extends eui.UILayer {
         if (isBallOnBlock) {
             this.jumpCount = 0;
         } else {
-            if (this.ballVy < 0) {
-                this.ballVy += 0.15;
-            } else {
-                this.ballVy += 0.6;
-            }
+            this.ballVy += 0.6;
         }
 
         if ((isBallOnBlock || this.jumpCount < 2) && this.tapped) {
