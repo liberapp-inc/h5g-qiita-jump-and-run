@@ -87,6 +87,7 @@ class Main extends eui.UILayer {
 
     private world : egret.DisplayObjectContainer;
     private cameraX: number;
+    private cameraY: number;
     private colors: Array<number> = [0x3800FA,
         0x7700FA,
         0xB500FA,
@@ -362,9 +363,7 @@ class Main extends eui.UILayer {
         p.y = Math.max(minY,Math.min(maxY,this.lastDrawnY + yOffset));
         const h = 1024;
         const color = this.currentColor(changeColorAfter);
-        const matrix = new egret.Matrix();
-        matrix.createGradientBox(width,h,3.14/2,0,10);	
-        p.graphics.beginGradientFill(egret.GradientType.LINEAR,[color,color],[100,50],[0,255],matrix);
+        p.graphics.beginFill(color);
         p.graphics.drawRect(0, 0, width, h);
         p.graphics.endFill();
         this.world.addChild(p);
@@ -374,9 +373,10 @@ class Main extends eui.UILayer {
     }
 
     private updateCamera(): void {
-        this.cameraX  = this.ball.x + this.width/ 4;
-        this.world.x = this.width / 2 - this.cameraX;
-        this.world.y = this.height / 2 - 50;
+        this.cameraX = this.ball.x + this.width/ 4;
+        this.cameraY = 0;
+        this.world.x = this.stage.stageWidth  / 2 - this.cameraX;
+        this.world.y = this.stage.stageHeight / 2 - this.cameraY;
     }
 
     private tap(e: egret.TouchEvent) {
