@@ -357,11 +357,11 @@ class Main extends eui.UILayer {
     }
 
     private createBlock(xOffset:number, yOffset:number, width:number, changeColorAfter: boolean = true) {
-        const minY = - this.stage.stageHeight * 1 / 3;
-        const maxY = this.stage.stageHeight * 1 / 3;
+        const minY = - this.height * 1 / 4;
+        const maxY = this.height * 1 / 4;
         const p = new egret.Shape();
         p.x = this.lastDrawnX + xOffset;
-        p.y = Math.max(minY,Math.min(maxY,this.lastDrawnY + yOffset));
+        p.y = limit(this.lastDrawnY + yOffset,minY, maxY,);
         const h = WORLD_BOTTOM - p.y;
         const color = this.currentColor(changeColorAfter);
         p.graphics.beginFill(color);
@@ -376,8 +376,8 @@ class Main extends eui.UILayer {
     private updateCamera(): void {
         this.cameraX = this.ball.x + this.width/ 4;
         this.cameraY = 0;
-        this.world.x = this.stage.stageWidth  / 2 - this.cameraX;
-        this.world.y = this.stage.stageHeight / 2 - this.cameraY;
+        this.world.x = this.width  / 2 - this.cameraX;
+        this.world.y = this.height / 2 - this.cameraY;
     }
 
     private tap(e: egret.TouchEvent) {
