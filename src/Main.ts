@@ -33,6 +33,7 @@ function randomInt(min: number, max:number) : number {
 }
 
 const BALL_RADIUS = 16;
+const WORLD_BOTTOM = 1024;
 
 class Main extends eui.UILayer {
     private scene: Scene;
@@ -361,7 +362,7 @@ class Main extends eui.UILayer {
         const p = new egret.Shape();
         p.x = this.lastDrawnX + xOffset;
         p.y = Math.max(minY,Math.min(maxY,this.lastDrawnY + yOffset));
-        const h = 1024;
+        const h = WORLD_BOTTOM - p.y;
         const color = this.currentColor(changeColorAfter);
         p.graphics.beginFill(color);
         p.graphics.drawRect(0, 0, width, h);
