@@ -34,6 +34,10 @@ function randomInt(min: number, max:number) : number {
 
 const BALL_RADIUS = 16;
 const WORLD_BOTTOM = 1024;
+const MAX_VELOCITY_Y = 10;
+const INITIAL_VELOCITY = -7;
+const GRAVITATIONAL_ACCELERATION_DEFAULT = 0.7;
+const GRAVITATIONAL_ACCELERATION_ON_TAP = 0.2;
 
 class Main extends eui.UILayer {
     private scene: Scene;
@@ -67,7 +71,8 @@ class Main extends eui.UILayer {
         await this.loadResource()
         this.createGameScene();
         this.addEventListener(egret.Event.ENTER_FRAME, this.enterFrame, this);
-        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.tap, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onTouchBegin, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
     }
 
     private async loadResource() {
@@ -85,6 +90,17 @@ class Main extends eui.UILayer {
         })
     }
 
+    private tapped: boolean;
+    private tapping : boolean;
+    
+    private onTouchBegin(e: egret.TouchEvent) {
+        this.tapped  = true;
+        this.tapping = true;
+    }
+
+    private onTouchEnd(e: egret.TouchEvent) {
+        this.tapping = false;
+    }
 
     private world : egret.DisplayObjectContainer;
     private cameraX: number;
@@ -99,7 +115,6 @@ class Main extends eui.UILayer {
     private lastDrawnY: number;
     private platforms: Array<egret.Shape> = [];
     private ball: egret.Shape;
-    private tapped: boolean;
     private ballVx : number = 1;
     private ballVy : number = 0;
     private jumpCount : number = 0;
@@ -212,15 +227,16 @@ class Main extends eui.UILayer {
         if (isBallOnBlock) {
             this.jumpCount = 0;
         } else {
-            this.ballVy += 0.6;
+            const g = this.tapping ? GRAVITATIONAL_ACCELERATION_ON_TAP : GRAVITATIONAL_ACCELERATION_DEFAULT;
+            this.ballVy += g;
         }
 
         if ((isBallOnBlock || this.jumpCount < 2) && this.tapped) {
-            this.ballVy = -5;
+            this.ballVy = INITIAL_VELOCITY;
             this.ball.y += this.ballVy;
             this.jumpCount ++;
         }
-        this.ballVy = limit(this.ballVy, -7, 7);
+        this.ballVy = limit(this.ballVy, -MAX_VELOCITY_Y, MAX_VELOCITY_Y);
         this.tapped = false;
     }
 
@@ -285,7 +301,6 @@ class Main extends eui.UILayer {
                 {
                     const len = random(10,20);
                     const descent = random(7,10);
-                    let x = 0;
                     for (let n = 0; n < len; n++) {
                         this.createBlock(0, descent / 2 + random(-1,1), 16, false);
                         this.createBlock(0, descent / 2 + random(-1,1), 16, true);
@@ -305,7 +320,6 @@ class Main extends eui.UILayer {
                 {
                     const len = randomInt(3,7);
                     const ascent = - random(32,48);
-                    let x = 0;
                     for (let n = 0; n < len; n++) {
                         this.createBlock(0, ascent + random(-1,1), 96);
                     }
@@ -335,7 +349,7 @@ class Main extends eui.UILayer {
                 break;
                 case PlatformGenerationMode.LargePit:
                     const len = randomInt(1,3);
-                    for (let i = 0; i < name; i++) {
+                    for (let i = 0; i < len; i++) {
                         this.createBlock(0, randomInt(-5,5), 32 * randomInt(1,3));
                         this.lastDrawnX += random(150,300);
                     }
@@ -376,7 +390,4 @@ class Main extends eui.UILayer {
         this.world.y = this.height / 2 - this.cameraY;
     }
 
-    private tap(e: egret.TouchEvent) {
-        this.tapped = true;
-    }
 }
