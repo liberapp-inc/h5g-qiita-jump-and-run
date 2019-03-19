@@ -292,6 +292,8 @@ class Main extends eui.UILayer {
   private generateNewBlocks() {
     const generationBorder = this.cameraX + this.width;
     while (this.lastDrawnX < generationBorder) {
+      const start = new Date().getMilliseconds();
+
       const mode = this.drawPlatformGenerationMode();
 
       switch (mode) {
@@ -361,6 +363,8 @@ class Main extends eui.UILayer {
           }
           break;
       }
+      const cost = new Date().getMilliseconds() - start;
+      egret.log(`mode: ${mode}, cost: ${cost}`);
     }
   }
 
