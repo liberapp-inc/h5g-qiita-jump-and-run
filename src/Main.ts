@@ -264,6 +264,7 @@ class Main extends eui.UILayer {
 
   private eraseBlocksOutOfCamera() {
     const visibilityLeft = this.cameraX - this.width / 2;
+    const start = performance.now();
     this.platforms = this.platforms.filter(p => {
       const r = p.x + p.width;
       const inCamera = visibilityLeft <= r;
@@ -272,6 +273,10 @@ class Main extends eui.UILayer {
       }
       return inCamera;
     });
+    const cost = performance.now() - start;
+    if (1 < cost) {
+      egret.log(`Rm c:${cost}`);
+    }
   }
 
   private drawPlatformGenerationMode(): PlatformGenerationMode {
@@ -292,7 +297,7 @@ class Main extends eui.UILayer {
   private generateNewBlocks() {
     const generationBorder = this.cameraX + this.width;
     while (this.lastDrawnX < generationBorder) {
-      const start = new Date().getMilliseconds();
+      const start = performance.now();
 
       const mode = this.drawPlatformGenerationMode();
 
@@ -363,8 +368,8 @@ class Main extends eui.UILayer {
           }
           break;
       }
-      const cost = new Date().getMilliseconds() - start;
-      egret.log(`mode: ${mode}, cost: ${cost}`);
+      const cost = performance.now() - start;
+      egret.log(`Gen m: ${mode}, c: ${cost}`);
     }
   }
 
