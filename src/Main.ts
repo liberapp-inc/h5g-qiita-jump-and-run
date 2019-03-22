@@ -42,6 +42,7 @@ const GRAVITATIONAL_ACCELERATION_ON_TAP = 0.2;
 class Main extends eui.UILayer {
   private scene: Scene;
   private distance: number;
+  private lastCalled: number = -1;
 
   protected createChildren(): void {
     super.createChildren();
@@ -138,16 +139,24 @@ class Main extends eui.UILayer {
 
   private enterFrame(t: number): boolean {
     const start = performance.now();
+    if (this.lastCalled !== -1) {
+      const otherCost = start - this.lastCalled;
+      if (100 < otherCost) {
+        egret.log(`Other cost over: ${otherCost}`);
+      }
+    }
     // this.updateBackground();
     // this.updateWorld();
     this.updateBlocks();
     this.updateBall();
     this.updateCamera();
     this.updateUI();
-    const cost = performance.now() - start;
-    if (200 < cost) {
+    const end = performance.now();
+    const cost = end - start;
+    if (100 < cost) {
       egret.log(`Cost over: ${cost}`);
     }
+    this.lastCalled = end;
     return true;
   }
 
