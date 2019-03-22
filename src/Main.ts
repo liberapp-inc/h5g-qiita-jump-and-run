@@ -137,12 +137,17 @@ class Main extends eui.UILayer {
   }
 
   private enterFrame(t: number): boolean {
+    const start = performance.now();
     // this.updateBackground();
     // this.updateWorld();
     this.updateBlocks();
     this.updateBall();
     this.updateCamera();
     this.updateUI();
+    const cost = performance.now() - start;
+    if (200 < cost) {
+      egret.log(`Cost over: ${cost}`);
+    }
     return true;
   }
 
