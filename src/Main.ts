@@ -141,7 +141,7 @@ class Main extends eui.UILayer {
     const start = performance.now();
     if (this.lastCalled !== -1) {
       const otherCost = start - this.lastCalled;
-      if (100 < otherCost) {
+      if (20 < otherCost) {
         egret.log(`Other cost over: ${otherCost}`);
       }
     }
@@ -153,7 +153,7 @@ class Main extends eui.UILayer {
     this.updateUI();
     const end = performance.now();
     const cost = end - start;
-    if (100 < cost) {
+    if (20 < cost) {
       egret.log(`Cost over: ${cost}`);
     }
     this.lastCalled = end;
